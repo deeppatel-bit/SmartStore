@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { Routes, Route, Navigate, useParams, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+import PageTransition from "./components/PageTransition";
 
-import Sidebar from "./components/Sidebar";
+import SidebarComponent from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import LoginPage from "./components/auth/LoginPage";
 
@@ -52,6 +54,7 @@ function nextInvoiceId(list, prefix) {
 export default function App() {
   // central UI state (search kept for topbar)
   const [search, setSearch] = useState("");
+  const location = useLocation();
 
   // Auth State
   const [user, setUser] = useState(() => readLS(LS_USER, null));
@@ -198,46 +201,46 @@ export default function App() {
   }
 
   return (
-    <BrowserRouter>
-      <div className="flex h-screen bg-gray-50">
-        <Sidebar />
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <Topbar search={search} setSearch={setSearch} onLogout={() => setUser(null)} user={user} />
-          <main className="p-6 overflow-y-auto flex-1">
-            <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={<Dashboard products={products} purchases={purchases} sales={sales} />} />
+    <div className="flex h-screen bg-gray-50">
+      <SidebarComponent />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Topbar search={search} setSearch={setSearch} onLogout={() => setUser(null)} user={user} />
+        <main className="p-6 overflow-y-auto flex-1 relative">
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<PageTransition><Navigate to="/dashboard" replace /></PageTransition>} />
+              <Route path="/dashboard" element={<PageTransition><Dashboard products={products} purchases={purchases} sales={sales} /></PageTransition>} />
 
               <Route
                 path="/products"
-                element={<ProductsPage products={products} onDelete={deleteProduct} search={search} />}
+                element={<PageTransition><ProductsPage products={products} onDelete={deleteProduct} search={search} /></PageTransition>}
               />
 
-              <Route path="/products/new" element={<ProductForm onSave={addOrUpdateProduct} />} />
+              <Route path="/products/new" element={<PageTransition><ProductForm onSave={addOrUpdateProduct} /></PageTransition>} />
               <Route
                 path="/products/edit/:id"
-                element={<ProductEditWrapper products={products} onSave={addOrUpdateProduct} />}
+                element={<PageTransition><ProductEditWrapper products={products} onSave={addOrUpdateProduct} /></PageTransition>}
               />
 
               {/* Purchase routes */}
-              <Route path="/purchase" element={<PurchaseList purchases={purchases} onDelete={deletePurchase} />} />
-              <Route path="/purchase/add" element={<PurchaseForm products={products} onSave={addPurchase} />} />
-              <Route path="/purchase/edit/:id" element={<PurchaseForm products={products} onSave={updatePurchase} editMode />} />
+              <Route path="/purchase" element={<PageTransition><PurchaseList purchases={purchases} onDelete={deletePurchase} /></PageTransition>} />
+              <Route path="/purchase/add" element={<PageTransition><PurchaseForm products={products} onSave={addPurchase} /></PageTransition>} />
+              <Route path="/purchase/edit/:id" element={<PageTransition><PurchaseForm products={products} onSave={updatePurchase} editMode /></PageTransition>} />
 
               {/* Sales routes */}
-              <Route path="/sales" element={<SalesList sales={sales} onDelete={deleteSale} />} />
-              <Route path="/sales/add" element={<SalesForm products={products} onSave={addSale} />} />
-              <Route path="/sales/edit/:id" element={<SalesForm products={products} onSave={updateSale} editMode />} />
+              <Route path="/sales" element={<PageTransition><SalesList sales={sales} onDelete={deleteSale} /></PageTransition>} />
+              <Route path="/sales/add" element={<PageTransition><SalesForm products={products} onSave={addSale} /></PageTransition>} />
+              <Route path="/sales/edit/:id" element={<PageTransition><SalesForm products={products} onSave={updateSale} editMode /></PageTransition>} />
 
-              <Route path="/reports" element={<ReportsPage purchases={purchases} sales={sales} />} />
-              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/reports" element={<PageTransition><ReportsPage purchases={purchases} sales={sales} /></PageTransition>} />
+              <Route path="/settings" element={<PageTransition><SettingsPage /></PageTransition>} />
 
-              <Route path="*" element={<div>Not found</div>} />
+              <Route path="*" element={<PageTransition><div>Not found</div></PageTransition>} />
             </Routes>
-          </main>
-        </div>
+          </AnimatePresence>
+        </main>
       </div>
-    </BrowserRouter>
+    </div>
   );
 }
 

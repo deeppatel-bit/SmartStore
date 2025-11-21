@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import StatCard from "../StatCard";
 import { DollarSign, Package, AlertTriangle } from "lucide-react";
+import { motion } from "framer-motion";
 
 /**
  Props:
@@ -9,6 +10,21 @@ import { DollarSign, Package, AlertTriangle } from "lucide-react";
   - purchases
   - sales
 **/
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
 
 export default function Dashboard({ products = [], purchases = [], sales = [] }) {
   const navigate = useNavigate();
@@ -35,21 +51,32 @@ export default function Dashboard({ products = [], purchases = [], sales = [] })
   }, [lowStock]);
 
   return (
-    <div className="space-y-8">
+    <motion.div
+      className="space-y-8"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard title="Total Sales Today" value={`₹ ${todaysSales.toFixed(2)}`} icon={DollarSign} color="indigo" />
-        <StatCard title="Total Products" value={totalProducts} icon={Package} color="green" />
-        <StatCard
-          title="Low Stock Alerts"
-          value={lowStock.length}
-          sub={lowStockMessage}
-          icon={AlertTriangle}
-          color={lowStock.length ? "red" : "green"}
-        />
+        <motion.div variants={itemVariants}>
+          <StatCard title="Total Sales Today" value={`₹ ${todaysSales.toFixed(2)}`} icon={DollarSign} color="indigo" />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <StatCard title="Total Products" value={totalProducts} icon={Package} color="green" />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <StatCard
+            title="Low Stock Alerts"
+            value={lowStock.length}
+            sub={lowStockMessage}
+            icon={AlertTriangle}
+            color={lowStock.length ? "red" : "green"}
+          />
+        </motion.div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+        <motion.div variants={itemVariants} className="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg border border-gray-100">
           <h3 className="text-xl font-semibold mb-4 border-b pb-2 text-gray-800">Recent Activity</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -85,29 +112,33 @@ export default function Dashboard({ products = [], purchases = [], sales = [] })
               </ul>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 h-fit">
+        <motion.div variants={itemVariants} className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 h-fit">
           <h3 className="text-xl font-semibold mb-4 border-b pb-2 text-gray-800">Quick Actions</h3>
           <div className="space-y-4">
             <div className="text-gray-600 text-sm">Use these shortcuts to quickly add new records.</div>
             <div className="flex flex-col gap-3">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => navigate("/sales/add")}
                 className="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors font-medium shadow-sm"
               >
                 New Sale
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => navigate("/purchase/add")}
                 className="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors font-medium shadow-sm"
               >
                 New Purchase
-              </button>
+              </motion.button>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Plus, Trash2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 /**
  Props:
@@ -99,7 +100,11 @@ export default function PurchaseForm({ products = [], onSave, editMode }) {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6 max-w-5xl mx-auto"
+    >
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-800">{editMode ? "Edit Purchase" : "Add Purchase"}</h2>
       </div>
@@ -150,63 +155,71 @@ export default function PurchaseForm({ products = [], onSave, editMode }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {lines.map((ln, i) => {
-                const p = products.find(x => x.id === ln.productId);
-                const stock = p ? p.stock : 0;
-                const subtotalLine = (Number(ln.qty || 0) * Number(ln.price || 0)).toFixed(2);
-                return (
-                  <tr key={i} className="hover:bg-gray-50">
-                    <td className="px-4 py-2">
-                      <select
-                        value={ln.productId}
-                        onChange={(e) => changeLine(i, "productId", e.target.value)}
-                        className="w-full border-gray-300 border px-3 py-2 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
-                      >
-                        <option value="">-- Select Product --</option>
-                        {products.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name} ({p.unit})
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="px-4 py-2 text-sm text-gray-600">
-                      {p ? `${stock} ${p.unit}` : "-"}
-                    </td>
-                    <td className="px-4 py-2">
-                      <input
-                        type="number"
-                        value={ln.price}
-                        onChange={(e) => changeLine(i, "price", Number(e.target.value))}
-                        className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
-                        min="0"
-                        step="0.01"
-                      />
-                    </td>
-                    <td className="px-4 py-2">
-                      <input
-                        type="number"
-                        value={ln.qty}
-                        onChange={(e) => changeLine(i, "qty", Number(e.target.value))}
-                        className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
-                        min="1"
-                      />
-                    </td>
-                    <td className="px-4 py-2 text-right font-medium text-gray-800">
-                      ₹ {subtotalLine}
-                    </td>
-                    <td className="px-4 py-2 text-center">
-                      <button
-                        onClick={() => removeLine(i)}
-                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
-                        title="Remove Item"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+              <AnimatePresence>
+                {lines.map((ln, i) => {
+                  const p = products.find(x => x.id === ln.productId);
+                  const stock = p ? p.stock : 0;
+                  const subtotalLine = (Number(ln.qty || 0) * Number(ln.price || 0)).toFixed(2);
+                  return (
+                    <motion.tr
+                      key={i} // Note: using index as key is not ideal for animations if reordering, but fine for append/delete
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      className="hover:bg-gray-50"
+                    >
+                      <td className="px-4 py-2">
+                        <select
+                          value={ln.productId}
+                          onChange={(e) => changeLine(i, "productId", e.target.value)}
+                          className="w-full border-gray-300 border px-3 py-2 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                        >
+                          <option value="">-- Select Product --</option>
+                          {products.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name} ({p.unit})
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-600">
+                        {p ? `${stock} ${p.unit}` : "-"}
+                      </td>
+                      <td className="px-4 py-2">
+                        <input
+                          type="number"
+                          value={ln.price}
+                          onChange={(e) => changeLine(i, "price", Number(e.target.value))}
+                          className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                          min="0"
+                          step="0.01"
+                        />
+                      </td>
+                      <td className="px-4 py-2">
+                        <input
+                          type="number"
+                          value={ln.qty}
+                          onChange={(e) => changeLine(i, "qty", Number(e.target.value))}
+                          className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                          min="1"
+                        />
+                      </td>
+                      <td className="px-4 py-2 text-right font-medium text-gray-800">
+                        ₹ {subtotalLine}
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        <button
+                          onClick={() => removeLine(i)}
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                          title="Remove Item"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </td>
+                    </motion.tr>
+                  );
+                })}
+              </AnimatePresence>
               {lines.length === 0 && (
                 <tr>
                   <td colSpan="6" className="px-4 py-8 text-center text-gray-500">
@@ -288,14 +301,16 @@ export default function PurchaseForm({ products = [], onSave, editMode }) {
           >
             Cancel
           </button>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleSave}
             className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all font-medium"
           >
             {editMode ? "Save Changes" : "Save Purchase"}
-          </button>
+          </motion.button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
