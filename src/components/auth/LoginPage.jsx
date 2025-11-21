@@ -103,7 +103,7 @@ export default function LoginPage({ onLogin }) {
                                         value={storeId}
                                         onChange={(e) => setStoreId(e.target.value)}
                                         className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all bg-white hover:bg-gray-50 focus:bg-white"
-                                        placeholder="e.g. RajuKirana101"
+                                        placeholder="e.g. Anything"
                                         required
                                     />
                                 </div>
