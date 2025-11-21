@@ -7,7 +7,6 @@ import { DollarSign, Package, AlertTriangle } from "lucide-react";
   - products
   - purchases
   - sales
-  -123
 **/
 
 export default function Dashboard({ products = [], purchases = [], sales = [] }) {
