@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-
 
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
+import LoginPage from "./components/auth/LoginPage";
 
 import Dashboard from "./components/dashboard/Dashboard";
 import ProductsPage from "./components/products/ProductsPage";
@@ -20,6 +21,7 @@ import SettingsPage from "./components/settings/SettingsPage";
 const LS_PRODUCTS = "smartstore_products";
 const LS_PURCHASES = "smartstore_purchases";
 const LS_SALES = "smartstore_sales";
+const LS_USER = "smartstore_user";
 
 function readLS(key, fallback) {
   try {
@@ -51,6 +53,9 @@ export default function App() {
   // central UI state (search kept for topbar)
   const [search, setSearch] = useState("");
 
+  // Auth State
+  const [user, setUser] = useState(() => readLS(LS_USER, null));
+
   // data with LocalStorage persistence
   const [products, setProducts] = useState(() =>
     readLS(LS_PRODUCTS, [
@@ -65,6 +70,12 @@ export default function App() {
   useEffect(() => writeLS(LS_PRODUCTS, products), [products]);
   useEffect(() => writeLS(LS_PURCHASES, purchases), [purchases]);
   useEffect(() => writeLS(LS_SALES, sales), [sales]);
+  useEffect(() => writeLS(LS_USER, user), [user]);
+
+  // If not logged in, show Login Page
+  if (!user) {
+    return <LoginPage onLogin={setUser} />;
+  }
 
   // ********** Products CRUD (kept simple) **********
   function addOrUpdateProduct(form) {
@@ -191,7 +202,7 @@ export default function App() {
       <div className="flex h-screen bg-gray-50">
         <Sidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
-          <Topbar search={search} setSearch={setSearch} />
+          <Topbar search={search} setSearch={setSearch} onLogout={() => setUser(null)} user={user} />
           <main className="p-6 overflow-y-auto flex-1">
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
